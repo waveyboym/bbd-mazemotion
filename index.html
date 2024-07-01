@@ -23,6 +23,25 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
       const socket = io(":3000");
+
+      function addMessage(message) {
+        const messages = document.getElementById("messages");
+        const li = document.createElement("li");
+        li.innerHTML = `<strong>user posted</strong>: ${message}`;
+        messages.appendChild(li);
+      }
+
+      document.getElementById("form").onsubmit = function(e) {
+        e.preventDefault();
+        const input = document.getElementById("input");
+        addMessage("You", input.value);
+        socket.emit("message", input.value);
+        input.value = "";
+      };
+
+      socket.on("message", addMessage);
+      socket.on("newUser", addMessage);
+      socket.on("removeUser", addMessage);
     </script>
   </body>
 </html>
