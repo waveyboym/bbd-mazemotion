@@ -39,3 +39,5 @@ function updateUIForNoGyroscope() {
 }
 
 initGyroscope();
+
+
