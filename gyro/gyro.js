@@ -1,8 +1,15 @@
+window.addEventListener("load", function () {
 
-window.addEventListener('deviceorientation', function(event) {
-    document.getElementById('gyroX').textContent = `X-axis: ${event.alpha.toFixed(2)}`;
-    document.getElementById('gyroY').textContent = `Y-axis: ${event.beta.toFixed(2)}`;
-    document.getElementById('gyroZ').textContent = `Z-axis: ${event.gamma.toFixed(2)}`;
+    var y = document.getElementById("gyroY");
+    var z = document.getElementById("gyroZ");
+
+    window.addEventListener('deviceorientation', handleOrientation);
+
+    function handleOrientation(event) {
+        const y_val = event.beta;
+        const z_val = event.gamma;
+        y.innerText = "Y: " + Math.round(y_val);
+        z.innerText = "Z: " + Math.round(z_val);
+}
+
 });
-
-
