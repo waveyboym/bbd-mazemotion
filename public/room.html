@@ -1,65 +1,67 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Socket.IO Room</title>
+    <title>Maze Motion | Lobby </title>
     <link rel="stylesheet" href="../style/style.css" />
+    <script src="script.js"></script>
   </head>
   <body>
     <header>
-      <h1>MazeMotion</h1>
-      <button id="pauseButton">Pause</button>
-      <span id="timer">Time: 00:00</span>
     </header>
-    <h1>Room</h1>
+    <h1>Lobby</h1>
     <div id="roomId"></div>
+    <br>
     <div id="activity"></div>
+    <br>
     <div id="status"></div>
+    <br>
     <div id="players"></div>
+    <br>
     <div id="controls">
       <button id="startGame">Start Game</button>
     </div>
+    <button id="fullscreenBtn">Toggle Fullscreen</button>
+    <button id="pauseButton">Pause</button>
+    <span id="timer">Time: 00:00</span>
     <div id="game">
-      <!-- pause game modal -->
       <div id="pauseGameModal" class="modal">
         <div class="modal-content">
           <h2>Game Paused</h2>
           <button id="resumeButton">Resume Game</button>
         </div>
       </div>
-      <!-- Start Game Modal -->
-      <div id="startGameModal" class="modal">
-        <div class="modal-content">
-          <h2>Get Ready to Play!</h2>
-          <button id="enterButton">Enter Room</button>
-        </div>
-      </div>
     </div>
     <canvas id="gameCanvas"></canvas>
+    <button id="back">&lt;-</button>
     <script src="/socket.io/socket.io.js"></script>
     <script src="main.js"></script>
-    <script src="script.js"></script>
+
     <script>
       const socket = io();
       const roomId = window.location.pathname.split("/").pop();
-      document.getElementById("roomId").innerText = `Room ID: ${roomId}`;
+      document.getElementById("roomId").innerText = `Lobby ID -> ${roomId}`;
 
       document.getElementById("startGame").onclick = () => {
         socket.emit("startGame", roomId);
         startTimer();
       };
 
+      document.getElementById('back').addEventListener('click', function() {
+        window.location.href = '/'; 
+      });
+
       socket.emit("joinRoom", roomId);
 
       socket.on("roomJoined", (data) => {
         document.getElementById(
           "activity"
-        ).innerText = `Joined room with ID: ${data.roomId}`;
+        ).innerText = `Share this room ID -> ${data.roomId}`;
       });
 
       socket.on("roomNotFound", () => {
-        document.getElementById(
-          "status"
-        ).innerText = `Room not found join existing room or create new room`;
+        const statusElement = document.getElementById("status");
+        statusElement.innerText = `Room not found. Join an existing room or create a new room.`;
+        statusElement.style.color = "red"; 
         document.getElementById("startGame").style.display = "none";
         document.getElementById("pauseButton").style.display = "none";
         document.getElementById("timer").style.display = "none";
@@ -72,22 +74,24 @@
       socket.on("playersInRoom", (data) => {
         document.getElementById(
           "players"
-        ).innerText = `Players: ${data.Users.map((user) => {
+        ).innerText = `Current Lobby -> ${data.Users.map((user) => {
           return user.id;
         }).join(", ")}`;
       });
 
       socket.on("gameReady", () => {
-        document.getElementById("status").innerText = `Game ready to start!`;
+        const statusElement = document.getElementById("status");
+        statusElement.innerText = `Game ready to start!`;
+        statusElement.style.color = "green";
         document.getElementById("startGame").style.display = "block";
         document.getElementById("pauseButton").style.display = "none";
         document.getElementById("timer").style.display = "none";
       });
 
       socket.on("gameNotReady", () => {
-        document.getElementById(
-          "status"
-        ).innerText = `Not enough players to start the game.`;
+        const statusElement = document.getElementById("status");
+        statusElement.innerText = `Not enough players to start the game.`;
+        statusElement.style.color = "red";
         document.getElementById("startGame").style.display = "none";
         document.getElementById("pauseButton").style.display = "none";
         document.getElementById("timer").style.display = "none";
@@ -105,13 +109,12 @@
         const modal = document.getElementById("startGameModal");
         const enterButton = document.getElementById("enterButton");
 
+
         if (modal && enterButton) {
-          // Show modal when the page loads
           modal.style.display = "block";
 
-          // Close modal when Start Game button is clicked
           enterButton.addEventListener("click", function () {
-            modal.style.display = "none"; // Hide modal
+            modal.style.display = "none"; 
           });
         } else {
           console.error("Modal or Start Button not found.");
@@ -132,18 +135,40 @@
         });
       });
 
-      // Timer variables
+      document.getElementById('fullscreenBtn').addEventListener('click', function() {
+        const canvas = document.getElementById('gameCanvas');
+        if (!document.fullscreenElement) {
+          if (canvas.requestFullscreen) {
+            canvas.requestFullscreen();
+          } else if (canvas.mozRequestFullScreen) { 
+            canvas.mozRequestFullScreen();
+          } else if (canvas.webkitRequestFullscreen) { 
+            canvas.webkitRequestFullscreen();
+          } else if (canvas.msRequestFullscreen) { 
+            canvas.msRequestFullscreen();
+          }
+        } else {
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+          } else if (document.mozCancelFullScreen) { 
+            document.mozCancelFullScreen();
+          } else if (document.webkitExitFullscreen) { 
+            document.webkitExitFullscreen();
+          } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+          }
+        }
+      });
+
       let timerInterval;
       let totalSeconds = 0;
       let isPaused = false;
 
-      // Start Timer
       function startTimer() {
         totalSeconds = 0;
         timerInterval = setInterval(updateTimer, 1000);
       }
 
-      // Update Timer
       function updateTimer() {
         if (!isPaused) {
           totalSeconds++;
@@ -155,26 +180,21 @@
         }
       }
 
-      // Pause Timer
       function pauseTimer() {
         isPaused = true;
       }
 
-      // Resume Timer
       function resumeTimer() {
         isPaused = false;
       }
 
-      // Enter Game Modal
       document
         .getElementById("enterButton")
         .addEventListener("click", function () {
           document.getElementById("startGameModal").style.display = "none";
 
-          // Start the game logic here
         });
 
-      // Pause Button
       document
         .getElementById("pauseButton")
         .addEventListener("click", function () {
@@ -184,7 +204,6 @@
           } else {
             resumeTimer();
           }
-          // Show the pause modal if needed
         });
     </script>
   </body>
