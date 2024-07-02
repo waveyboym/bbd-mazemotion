@@ -11,13 +11,18 @@ const io = socketIo(server);
 app.use(express.static(path.join(__dirname + '/public')));
 
 // Route to serve the login page
-app.get('/', (req, res) => {
+app.get('/', (_, res) => {
     res.sendFile(__dirname + '/public/login.html');
 });
 
 // Route to serve the room page
-app.get('/room/:id', (req, res) => {
+app.get('/room/:id', (_, res) => {
     res.sendFile(__dirname + '/public/room.html');
+});
+
+// Route to serve the gyro page
+app.get('/gyro', (_, res) => {
+    res.sendFile(__dirname + '/public/gyro.html');
 });
 
 // Object to keep track of rooms and their users
