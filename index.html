@@ -1,58 +1,42 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Socket.IO chat</title>
-    <style>
-
-      body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-
-      #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
-      #input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
-      #input:focus { outline: none; }
-      #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
-
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages > li { padding: 0.5rem 1rem; }
-      #messages > li:nth-child(odd) { background: #efefef; }
-      
-      #gyroX, #gyroY, #gyroZ {
-        font-family: Arial, sans-serif;
-        margin: 10px;
-      }
-    </style>
+    <title>Maze Motion</title>
+    <link rel="stylesheet" href="style/style.css">
+    <script src="/socket.io/socket.io.js" crossorigin="anonymous"></script>
+    <script src="gyro/gyro.js"></script>
   </head>
   <body>
-    <ul id="messages"></ul>
-    <form id="form" action="">
-      <input id="input" autocomplete="off" /><button>Send</button>
-    </form>
     <div id="gyroX">X-axis: 0</div>
     <div id="gyroY">Y-axis: 0</div>
     <div id="gyroZ">Z-axis: 0</div>
-    <script src="/socket.io/socket.io.js" crossorigin="anonymous"></script>
-    <script src="gyro/gyro.js"></script>
-
-    <script>
-      const socket = io();
-
-      function addMessage(message) {
-        const messages = document.getElementById("messages");
-        const li = document.createElement("li");
-        li.innerHTML = `<strong>user posted</strong>: ${message}`;
-        messages.appendChild(li);
-      }
-
-      document.getElementById("form").onsubmit = function(e) {
-        e.preventDefault();
-        const input = document.getElementById("input");
-        addMessage("You", input.value);
-        socket.emit("message", input.value);
-        input.value = "";
-      };
-
-      socket.on("message", addMessage);
-      socket.on("newUser", addMessage);
-      socket.on("removeUser", addMessage);
-    </script>
   </body>
 </html>
+
+
+
+
+<!-- Maybe Useful Later -->
+
+  <!-- <script>
+    const socket = io();
+
+    function addMessage(message) {
+      const messages = document.getElementById("messages");
+      const li = document.createElement("li");
+      li.innerHTML = `<strong>user posted</strong>: ${message}`;
+      messages.appendChild(li);
+    }
+
+    document.getElementById("form").onsubmit = function(e) {
+      e.preventDefault();
+      const input = document.getElementById("input");
+      addMessage("You", input.value);
+      socket.emit("message", input.value);
+      input.value = "";
+    };
+
+    socket.on("message", addMessage);
+    socket.on("newUser", addMessage);
+    socket.on("removeUser", addMessage);
+  </script> -->

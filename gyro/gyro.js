@@ -1,14 +1,17 @@
-if ('Gyroscope' in window) {
-    let gyro = new Gyroscope({frequency: 60});
-    gyro.addEventListener('reading', () => {
-        document.getElementById('gyroX').textContent = `X-axis: ${gyro.x.toFixed(2)}`;
-        document.getElementById('gyroY').textContent = `Y-axis: ${gyro.y.toFixed(2)}`;
-        document.getElementById('gyroZ').textContent = `Z-axis: ${gyro.z.toFixed(2)}`;
-    });
-    gyro.start();
-} else {
-    console.log('Gyroscope API is not supported in this browser.');
-    document.getElementById('gyroX').textContent = 'Gyroscope API is not supported in this browser.';
-    document.getElementById('gyroY').textContent = '';
-    document.getElementById('gyroZ').textContent = '';
+window.addEventListener("load", function () {
+    var x = document.getElementById("gyroX");   
+    var y = document.getElementById("gyroY");
+    var z = document.getElementById("gyroZ");
+
+    window.addEventListener('deviceorientation', handleOrientation);
+
+    function handleOrientation(event) {
+        const x_val = event.alpha;
+        const y_val = event.beta;
+        const z_val = event.gamma;
+        x.innerText = "X: " + Math.round(x_val);
+        y.innerText = "Y: " + Math.round(y_val);
+        z.innerText = "Z: " + Math.round(z_val);
 }
+
+});
