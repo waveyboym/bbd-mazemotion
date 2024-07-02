@@ -1,84 +1,180 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Socket.IO Room</title>
-</head>
-<body>
-  <header>
-    <h1>MazeMotion</h1>
-    <button id="pauseButton">Pause</button>
-    <span id="timer">Time: 00:00</span>
-  </header>
-  <h1>Room</h1>
-  <div id="roomId"></div>
-  <div id="activity"></div>
-  <div id="status"></div>
-  <div id="players"></div>
-  <div id="controls">
-    <button id="startGame">Start Game</button>
-  </div>
-  <div id="game">
-     <!-- pause game modal -->
-     <div id="pauseGameModal" class="modal">
-      <div class="modal-content">
-        <h2>Game Paused</h2>
-        <button id="resumeButton">Resume Game</button>
+  <head>
+    <title>Socket.IO Room</title>
+    <link rel="stylesheet" href="style/style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>MazeMotion</h1>
+      <button id="pauseButton">Pause</button>
+      <span id="timer">Time: 00:00</span>
+    </header>
+    <h1>Room</h1>
+    <div id="roomId"></div>
+    <div id="activity"></div>
+    <div id="status"></div>
+    <div id="players"></div>
+    <div id="controls">
+      <button id="startGame">Start Game</button>
+    </div>
+    <div id="game">
+      <!-- pause game modal -->
+      <div id="pauseGameModal" class="modal">
+        <div class="modal-content">
+          <h2>Game Paused</h2>
+          <button id="resumeButton">Resume Game</button>
+        </div>
+      </div>
+      <!-- Start Game Modal -->
+      <div id="startGameModal" class="modal">
+        <div class="modal-content">
+          <h2>Get Ready to Play!</h2>
+          <button id="enterButton">Enter Room</button>
+        </div>
       </div>
     </div>
-    <!-- Start Game Modal -->
-    <div id="startGameModal" class="modal">
-      <div class="modal-content">
-        <h2>Get Ready to Play!</h2>
-        <button id="startButton">Start Game</button>
-      </div>
-    </div>
-  </div>
-  <canvas id="gameCanvas"></canvas>
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="main.js"></script>
-  <script src="script.js"></script>
-  <script>
-    const socket = io();
-    const roomId = window.location.pathname.split('/').pop();
-    document.getElementById('roomId').innerText = `Room ID: ${roomId}`;
+    <canvas id="gameCanvas"></canvas>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="main.js"></script>
+    <script src="script.js"></script>
+    <script>
+      const socket = io();
+      const roomId = window.location.pathname.split("/").pop();
+      document.getElementById("roomId").innerText = `Room ID: ${roomId}`;
 
-    document.getElementById('startGame').onclick = () => {
-      socket.emit('startGame', roomId);
-    };
+      document.getElementById("startGame").onclick = () => {
+        socket.emit("startGame", roomId);
+        startTimer();
+      };
 
-    socket.emit('joinRoom', roomId);
+      socket.emit("joinRoom", roomId);
 
-    socket.on('roomJoined', (data) => {
-      document.getElementById('activity').innerText = `Joined room with ID: ${data.roomId} and team: ${data.team}`;
-    });
+      socket.on("roomJoined", (data) => {
+        document.getElementById(
+          "activity"
+        ).innerText = `Joined room with ID: ${data.roomId} and team: ${data.team}`;
+      });
 
-    socket.on('roomNotFound', () => {
-      document.getElementById('status').innerText = `Room not found`;
-    });
+      socket.on("roomNotFound", () => {
+        document.getElementById("status").innerText = `Room not found`;
+      });
 
-    socket.on('roomFull', () => {
-      document.getElementById('status').innerText = `Room is full`;
-    });
+      socket.on("roomFull", () => {
+        document.getElementById("status").innerText = `Room is full`;
+      });
 
-    socket.on('playersInRoom', (data) => {
-      document.getElementById('players').innerText = `Players: ${data.Users.map((user) => {return user.id}).join(', ')}`;
-    });
+      socket.on("playersInRoom", (data) => {
+        document.getElementById(
+          "players"
+        ).innerText = `Players: ${data.Users.map((user) => {
+          return user.id;
+        }).join(", ")}`;
+      });
 
-    socket.on('gameReady', () => {
-      document.getElementById('status').innerText = `Game ready to start!`;
-      document.getElementById('startGame').style.display = 'block';
-    });
+      socket.on("gameReady", () => {
+        document.getElementById("status").innerText = `Game ready to start!`;
+        document.getElementById("startGame").style.display = "block";
+      });
 
-    socket.on('gameNotReady', () => {
-      document.getElementById('status').innerText = `Not enough players to start the game.`;
-      document.getElementById('startGame').style.display = 'none';
-    });
+      socket.on("gameNotReady", () => {
+        document.getElementById(
+          "status"
+        ).innerText = `Not enough players to start the game.`;
+        document.getElementById("startGame").style.display = "none";
+      });
 
-    socket.on('gameStarted', (data) => {
-      document.getElementById('status').innerText = `Game started!`;
-      document.getElementById('startGame').style.display = 'none';
-      console.log(data);
-    });
-  </script>
-</body>
+      socket.on("gameStarted", (data) => {
+        document.getElementById("status").innerText = `Game started!`;
+        document.getElementById("startGame").style.display = "none";
+        console.log(data);
+      });
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const modal = document.getElementById("startGameModal");
+        const enterButton = document.getElementById("enterButton");
+
+        if (modal && enterButton) {
+          // Show modal when the page loads
+          modal.style.display = "block";
+
+          // Close modal when Start Game button is clicked
+          enterButton.addEventListener("click", function () {
+            modal.style.display = "none"; // Hide modal
+          });
+        } else {
+          console.error("Modal or Start Button not found.");
+        }
+      });
+
+      document.addEventListener("DOMContentLoaded", (event) => {
+        const pauseButton = document.getElementById("pauseButton");
+        const resumeButton = document.getElementById("resumeButton");
+        const pauseGameModal = document.getElementById("pauseGameModal");
+
+        pauseButton.addEventListener("click", () => {
+          pauseGameModal.style.display = "flex";
+        });
+
+        resumeButton.addEventListener("click", () => {
+          pauseGameModal.style.display = "none";
+        });
+      });
+
+      // Timer variables
+      let timerInterval;
+      let totalSeconds = 0;
+      let isPaused = false;
+
+      // Start Timer
+      function startTimer() {
+        totalSeconds = 0;
+        timerInterval = setInterval(updateTimer, 1000);
+      }
+
+      // Update Timer
+      function updateTimer() {
+        if (!isPaused) {
+          totalSeconds++;
+          const minutes = Math.floor(totalSeconds / 60);
+          const seconds = totalSeconds % 60;
+          document.getElementById("timer").innerHTML = `Time: ${
+            minutes < 10 ? "0" : ""
+          }${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+        }
+      }
+
+      // Pause Timer
+      function pauseTimer() {
+        isPaused = true;
+      }
+
+      // Resume Timer
+      function resumeTimer() {
+        isPaused = false;
+      }
+
+      // Enter Game Modal
+      document
+        .getElementById("enterButton")
+        .addEventListener("click", function () {
+          document.getElementById("startGameModal").style.display = "none";
+
+          // Start the game logic here
+        });
+
+      // Pause Button
+      document
+        .getElementById("pauseButton")
+        .addEventListener("click", function () {
+          isPaused = !isPaused;
+          if (isPaused) {
+            pauseTimer();
+          } else {
+            resumeTimer();
+          }
+          // Show the pause modal if needed
+        });
+    </script>
+  </body>
 </html>
