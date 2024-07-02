@@ -53,7 +53,7 @@
       socket.on("roomJoined", (data) => {
         document.getElementById(
           "activity"
-        ).innerText = `Joined room with ID: ${data.roomId} and team: ${data.team}`;
+        ).innerText = `Joined room with ID: ${data.roomId}`;
       });
 
       socket.on("roomNotFound", () => {
