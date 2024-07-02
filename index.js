@@ -71,6 +71,13 @@ io.on("connection", (socket) => {
 
     // expected data = roomId
     socket.on('joinRoom', (roomId) => {
+        // if roomid is not specified, return error
+        if (!roomId) {
+            socket.emit('roomNotFound');
+            console.log('Room not found');
+            return;
+        }
+
         // Check if the room exists and has less than 4 users
         if (rooms[roomId] && rooms[roomId].Users.length < 4) {
             socket.join(roomId);
@@ -106,6 +113,13 @@ io.on("connection", (socket) => {
 
     // spectator joins room
     socket.on('joinRoomAsViewer', (roomId) => {
+        // if roomid is not specified, return error
+        if (!roomId) {
+            socket.emit('roomNotFound');
+            console.log('Room not found');
+            return;
+        }
+        
         // if room exists, join as viewer
         if (rooms[roomId]) {
             socket.join(roomId);

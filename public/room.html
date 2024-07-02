@@ -4,6 +4,11 @@
   <title>Socket.IO Room</title>
 </head>
 <body>
+  <header>
+    <h1>MazeMotion</h1>
+    <button id="pauseButton">Pause</button>
+    <span id="timer">Time: 00:00</span>
+  </header>
   <h1>Room</h1>
   <div id="roomId"></div>
   <div id="activity"></div>
@@ -12,9 +17,26 @@
   <div id="controls">
     <button id="startGame">Start Game</button>
   </div>
-  <div id="game"></div>
-
+  <div id="game">
+     <!-- pause game modal -->
+     <div id="pauseGameModal" class="modal">
+      <div class="modal-content">
+        <h2>Game Paused</h2>
+        <button id="resumeButton">Resume Game</button>
+      </div>
+    </div>
+    <!-- Start Game Modal -->
+    <div id="startGameModal" class="modal">
+      <div class="modal-content">
+        <h2>Get Ready to Play!</h2>
+        <button id="startButton">Start Game</button>
+      </div>
+    </div>
+  </div>
+  <canvas id="gameCanvas"></canvas>
   <script src="/socket.io/socket.io.js"></script>
+  <script src="main.js"></script>
+  <script src="script.js"></script>
   <script>
     const socket = io();
     const roomId = window.location.pathname.split('/').pop();

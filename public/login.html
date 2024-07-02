@@ -23,11 +23,21 @@
 
     document.getElementById('joinRoom').onclick = () => {
       const roomId = document.getElementById('roomId').value;
+      // if room id is undefined, show error message
+      if (!roomId) {
+        document.getElementById('status').innerText = `Please enter a room ID`;
+        return;
+      }
       window.location.href = `/room/${roomId}`;
     };
 
     document.getElementById('joinRoomAsViewer').onclick = () => {
       const roomId = document.getElementById('roomId').value;
+      // if room id is undefined, show error message
+      if (!roomId) {
+        document.getElementById('status').innerText = `Please enter a room ID`;
+        return;
+      }
       window.location.href = `/viewer/${roomId}`;
     };
 
