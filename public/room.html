@@ -137,26 +137,19 @@
 
       document.getElementById('fullscreenBtn').addEventListener('click', function() {
         const canvas = document.getElementById('gameCanvas');
+        const requestFullscreen = canvas.requestFullscreen || canvas.mozRequestFullScreen || canvas.webkitRequestFullscreen || canvas.msRequestFullscreen;
+        const exitFullscreen = document.exitFullscreen || document.mozCancelFullScreen || document.webkitExitFullscreen || document.msExitFullscreen;
+
         if (!document.fullscreenElement) {
-          if (canvas.requestFullscreen) {
-            canvas.requestFullscreen();
-          } else if (canvas.mozRequestFullScreen) { 
-            canvas.mozRequestFullScreen();
-          } else if (canvas.webkitRequestFullscreen) { 
-            canvas.webkitRequestFullscreen();
-          } else if (canvas.msRequestFullscreen) { 
-            canvas.msRequestFullscreen();
-          }
+          requestFullscreen.call(canvas).catch(err => {
+            alert("Fullscreen mode failed to activate. Make sure you're using a compatible browser and your site is served over HTTPS.");
+            console.error("Error attempting to enable fullscreen mode:", err.message);
+          });
         } else {
-          if (document.exitFullscreen) {
-            document.exitFullscreen();
-          } else if (document.mozCancelFullScreen) { 
-            document.mozCancelFullScreen();
-          } else if (document.webkitExitFullscreen) { 
-            document.webkitExitFullscreen();
-          } else if (document.msExitFullscreen) {
-            document.msExitFullscreen();
-          }
+          exitFullscreen.call(document).catch(err => {
+            alert("Failed to exit fullscreen mode.");
+            console.error("Error attempting to disable fullscreen mode:", err.message);
+          });
         }
       });
 
