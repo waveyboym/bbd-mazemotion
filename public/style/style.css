@@ -1,5 +1,7 @@
 /* styles.css */
 
+/* Generic elements */
+
 body {
   display: flex;
   flex-direction: column;
@@ -7,17 +9,20 @@ body {
   justify-content: center;
   height: 100vh;
   margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #f0f0f0;
+  font-family: "Press Start 2P", cursive;
+  background-color: #0a0a23;
+  color: #ffffff;
 }
 
 h1 {
+  color: #ffcc00;
+  text-shadow: 2px 2px #000000;
+  font-size: 3em;
   margin-bottom: 20px;
 }
 
-canvas {
-  border: 2px solid #000;
-  background-color: #fff;
+h2 {
+  color: #0a0a23;
 }
 
 header {
@@ -32,6 +37,12 @@ header {
   z-index: 1000; /* Ensure header stays above other content */
 }
 
+/* Canvas and Modal styling */
+
+canvas {
+  border: 2px solid #000;
+  background-color: #fff;
+}
 .modal {
   display: none; /* Hidden by default */
   position: fixed;
@@ -98,6 +109,8 @@ button {
   cursor: pointer;
   border-radius: 5px;
 }
+
+/* Timer stye*/
 
 #timer {
   font-size: 1.2em;
