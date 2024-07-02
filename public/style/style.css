@@ -9,7 +9,8 @@ body {
   justify-content: center;
   height: 100vh;
   margin: 0;
-  font-family: "Press Start 2P", cursive;
+  font-family: "Press Start 2P", "Courier New", Courier, "Lucida Console",
+    monospace;
   background-color: #0a0a23;
   color: #ffffff;
 }
@@ -117,3 +118,5 @@ button {
   font-weight: bold;
   padding-left: 4px;
 }
+
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
