@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Socket.IO Rooms - Login</title>
+</head>
+<body>
+  <h1>Socket.IO Rooms</h1>
+  <button id="createRoom">Create Room</button>
+  <input type="text" id="roomId" placeholder="Enter Room ID">
+  <button id="joinRoom">Join Room</button>
+  <div id="status"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    document.getElementById('createRoom').onclick = () => {
+      socket.emit('createRoom');
+    };
+
+    document.getElementById('joinRoom').onclick = () => {
+      const roomId = document.getElementById('roomId').value;
+      window.location.href = `/room/${roomId}`;
+    };
+
+    socket.on('roomCreated', (data) => {
+      window.location.href = `/room/${data.roomId}`;
+    });
+
+    socket.on('roomNotFound', () => {
+      document.getElementById('status').innerText = `Room not found`;
+    });
+  </script>
+</body>
+</html>

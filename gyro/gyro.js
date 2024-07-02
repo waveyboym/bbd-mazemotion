@@ -12,6 +12,6 @@ window.addEventListener("load", function () {
         x.innerText = "X: " + Math.round(x_val);
         y.innerText = "Y: " + Math.round(y_val);
         z.innerText = "Z: " + Math.round(z_val);
-}
+    }
 
 });
