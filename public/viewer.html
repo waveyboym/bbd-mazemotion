@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket.IO Rooms - Viewer</title>
+</head>
+<body>
+    <h1>Socket.IO Viewers</h1>
+    <div id="roomId"></div>
+    <div id="status"></div>
+    <div id="players"></div>
+    <div id="game"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const roomId = window.location.pathname.split('/').pop();
+        document.getElementById('roomId').innerText = `Room ID: ${roomId}`;
+
+        socket.emit('joinRoomAsViewer', roomId);
+
+        socket.on('roomJoined', (data) => {
+        document.getElementById('status').innerText = `Joined room with ID: ${data.roomId} as a viewer.`;
+        });
+
+        socket.on('roomNotFound', () => {
+        document.getElementById('status').innerText = `Room not found`;
+        });
+
+        socket.on('playersInRoom', (data) => {
+            document.getElementById('players').innerText = `Players: ${data.Users.map((user) => {return user.id}).join(', ')}`;
+        });
+
+        socket.on('gameReady', () => {
+        document.getElementById('status').innerText = `Game ready to start!`;
+        });
+
+        socket.on('gameNotReady', () => {
+        document.getElementById('status').innerText = `Not enough players to start the game.`;
+        });
+
+        socket.on('gameStarted', (data) => {
+        document.getElementById('status').innerText = `Game started!`;
+        console.log(data);
+        });
+    </script>
+</body>
+</html>

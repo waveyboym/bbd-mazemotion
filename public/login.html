@@ -10,6 +10,7 @@
   <input type="text" id="roomId" placeholder="Enter Room ID">
   <button id="joinRoom">JOIN LOBBY</button>
   <button id="createRoom">CREATE LOBBY</button>
+  <button id="joinRoomAsViewer">WATCH A GAME</button>
   <div id="status"></div>
 
   <script src="/socket.io/socket.io.js"></script>
@@ -23,6 +24,11 @@
     document.getElementById('joinRoom').onclick = () => {
       const roomId = document.getElementById('roomId').value;
       window.location.href = `/room/${roomId}`;
+    };
+
+    document.getElementById('joinRoomAsViewer').onclick = () => {
+      const roomId = document.getElementById('roomId').value;
+      window.location.href = `/viewer/${roomId}`;
     };
 
     socket.on('roomCreated', (data) => {

@@ -6,7 +6,13 @@
 <body>
   <h1>Room</h1>
   <div id="roomId"></div>
+  <div id="activity"></div>
   <div id="status"></div>
+  <div id="players"></div>
+  <div id="controls">
+    <button id="startGame">Start Game</button>
+  </div>
+  <div id="game"></div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
@@ -14,10 +20,14 @@
     const roomId = window.location.pathname.split('/').pop();
     document.getElementById('roomId').innerText = `Room ID: ${roomId}`;
 
+    document.getElementById('startGame').onclick = () => {
+      socket.emit('startGame', roomId);
+    };
+
     socket.emit('joinRoom', roomId);
 
     socket.on('roomJoined', (data) => {
-      document.getElementById('status').innerText = `Joined room with ID: ${data.roomId}`;
+      document.getElementById('activity').innerText = `Joined room with ID: ${data.roomId} and team: ${data.team}`;
     });
 
     socket.on('roomNotFound', () => {
@@ -28,12 +38,24 @@
       document.getElementById('status').innerText = `Room is full`;
     });
 
+    socket.on('playersInRoom', (data) => {
+      document.getElementById('players').innerText = `Players: ${data.Users.map((user) => {return user.id}).join(', ')}`;
+    });
+
     socket.on('gameReady', () => {
       document.getElementById('status').innerText = `Game ready to start!`;
+      document.getElementById('startGame').style.display = 'block';
     });
 
     socket.on('gameNotReady', () => {
       document.getElementById('status').innerText = `Not enough players to start the game.`;
+      document.getElementById('startGame').style.display = 'none';
+    });
+
+    socket.on('gameStarted', (data) => {
+      document.getElementById('status').innerText = `Game started!`;
+      document.getElementById('startGame').style.display = 'none';
+      console.log(data);
     });
   </script>
 </body>
