@@ -27,7 +27,8 @@
     <button id="fullscreenBtn">Toggle Fullscreen</button>
     <button id="permissions">Request Permisions</button>
     <button id="pauseButton">Pause</button>
-    <span id="timer">Time: 00:00</span>
+    <br>
+    <span id="timer">Time -> 00:00</span>
     <div id="game">
       <div id="pauseGameModal" class="modal">
         <div class="modal-content">
@@ -77,17 +78,17 @@
           var x = document.getElementById("gyroX");   
           var y = document.getElementById("gyroY");
           var z = document.getElementById("gyroZ");
-          const y_val = event.beta;
-          const z_val = event.gamma;
+          const y_val = event.beta / 180;
+          const z_val = event.gamma / 90;
           y.innerText = "Y: " + Math.round(y_val);
           z.innerText = "Z: " + Math.round(z_val);
           
           // scale y_val and z_val to be between -1 and 1 for [-90, 90]
-          const y_scaled = Math.max(-1, Math.min(y_val / 90)); // front and back tilt
-          const z_scaled = Math.max(-1, Math.min(z_val / 90)); // left and right tilt
+          // const y_scaled = Math.max(-1, Math.min(y_val / 90)); // front and back tilt
+          // const z_scaled = Math.max(-1, Math.min(z_val / 90)); // left and right tilt
           x.innerText = "y_scaled: " + y_scaled + " z_scaled: " + z_scaled;
 
-          moveBall(maze, ball, z_scaled * 2, y_scaled * 2, ctx, cellSize);
+          moveBall(maze, ball, z_scaled, y_scaled, ctx, cellSize);
       }
 
       window.addEventListener("load", function () {
