@@ -77,6 +77,7 @@ let ballVelY = 0;
       //             break;
       //     }
       // });
+      let isPaused = false;
       let keysPressed = {};
 document.addEventListener('keydown', (event) => {
 keysPressed[event.key] = true;
@@ -298,7 +299,6 @@ gameLoop();
 
       let timerInterval;
       let totalSeconds = 0;
-      let isPaused = false;
 
       function startTimer() {
         totalSeconds = 0;
