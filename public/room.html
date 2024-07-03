@@ -98,6 +98,8 @@
           const y_val = event.beta; // Range [-180, 180]
           const z_val = event.gamma; // Range [-90, 90]
 
+          console.log(y_val, z_val)
+
           // Assuming the device is held upright, beta represents tilt front/back, and gamma represents tilt left/right.
           // Adjust the divisor to control sensitivity.
           ballVelY = Math.max(Math.min(y_val / 45, maxSpeed), -maxSpeed); // Adjust divisor for sensitivity
