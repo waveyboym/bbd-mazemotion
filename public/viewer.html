@@ -51,7 +51,9 @@
         });
 
         socket.on('gameNotReady', () => {
-            document.getElementById('status').innerText = `Not enough players to start the game.`;
+            const statusElement = document.getElementById('status');
+            statusElement.innerText = `Game not ready to start!`;
+            statusElement.style.color = 'red';
         });
 
         socket.on('gameStarted', (data) => {
