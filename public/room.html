@@ -315,6 +315,22 @@
                 socket.emit('updatePosition', {roomId, position: ball});
             }
         }
+        window.addEventListener('deviceorientation', handleOrientation);
+
+        function handleOrientation(event) {
+            const y_val = event.beta / 180; 
+            const z_val = event.gamma / 180; 
+
+            canvas.style.transform = `rotateY(${z_val*90}deg) rotateX(${y_val *-90}deg)`;
+
+            ballVelY = Math.max(Math.min(y_val / 90 * maxSpeed, maxSpeed), -maxSpeed);
+            ballVelX = Math.max(Math.min(z_val / 90 * maxSpeed, maxSpeed), -maxSpeed);
+
+            console.log("Ball Vel Y" + ballVelY);
+            console.log("Ball Vel X" + ballVelX);
+
+            moveBall(maze, ball, ballVelX, ballVelY, ctx, cellSize);
+        }
     </script>
   </body>
 </html>
