@@ -58,11 +58,11 @@ io.on("connection", (socket) => {
 
         if (rooms[roomId] && rooms[roomId].Users.length < 4) {
             socket.join(roomId);
-            rooms[roomId].Users.push({ id: socket.id, position: { x: 0, y: 0 } });
+            rooms[roomId].Users.push({ id: socket.id, color: getRandomColor(), position: { x: 0, y: 0 } });
             socket.emit('roomJoined', { roomId });
             console.log(`User joined room with ID: ${roomId}`);
 
-            io.to(roomId).emit('playersInRoom', { Users: rooms[roomId].Users });
+            io.to(roomId).emit('playersInRoom', { Users: rooms[roomId].Users, id: socket.id });
             
             if (viewers[roomId]) {
                 viewers[roomId].forEach(viewer => {
@@ -114,7 +114,7 @@ io.on("connection", (socket) => {
 
         // initialize positions of players on the maze
         rooms[roomId].Users.forEach(user => {
-            user.position = { x: 1, y: 1 };
+            user.position = getRandomSpot(rooms[roomId].maze);
         });
 
         // emit gameStarted event and send maze and player positions
@@ -123,7 +123,7 @@ io.on("connection", (socket) => {
         // emit gameStarted event to viewers
         if (viewers[roomId]) {
             viewers[roomId].forEach(viewer => {
-                socket.to(viewer).emit('gameStarted', { maze: [], Users: rooms[roomId].Users});
+                socket.to(viewer).emit('gameStarted', { maze: rooms[roomId].maze, Users: rooms[roomId].Users});
             });
         }
     });
@@ -186,7 +186,22 @@ module.exports = app;
 
 
 
+// get random css color like blue, orange etc as string
+function getRandomColor() {
+    const colors = ['blue', 'orange', 'green', 'red', 'purple', 'yellow', 'pink', 'brown', 'cyan', 'magenta', 'lime', 'teal', 'indigo', 'violet', 'gray', 'black', 'white'];
+    return colors[Math.floor(Math.random() * colors.length)];
+}
 
+// pick random x,y spot in array that is available (0)
+function getRandomSpot(maze) {
+    let x = Math.floor(Math.random() * maze[0].length);
+    let y = Math.floor(Math.random() * maze.length);
+    while (maze[y][x] !== 0) {
+        x = Math.floor(Math.random() * maze[0].length);
+        y = Math.floor(Math.random() * maze.length);
+    }
+    return { x, y };
+}
 
 // maze generation
 

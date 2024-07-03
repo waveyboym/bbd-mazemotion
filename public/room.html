@@ -31,7 +31,9 @@
         </div>
       </div>
     </div>
-    <canvas id="gameCanvas"></canvas>
+    <div id="canvas-container">
+      <canvas id="gameCanvas"></canvas>
+    </div>
     <button id="back">&lt;-</button>
     <script src="/socket.io/socket.io.js"></script>
     <script src="main.js"></script>
@@ -40,6 +42,31 @@
       const socket = io();
       const roomId = window.location.pathname.split("/").pop();
       document.getElementById("roomId").innerText = `Lobby ID -> ${roomId}`;
+
+      let maze = [];
+      let id = '';
+      const canvas = document.getElementById('gameCanvas');
+      const ctx = canvas.getContext('2d');
+      let ball = { x: 1, y: 1 };
+      let ballcol = 'red';
+      const cellSize = 7;
+
+      window.addEventListener('keydown', event => {
+          switch (event.key) {
+              case 'ArrowUp':
+                  moveBall(maze, ball, 0, -1, ctx, cellSize);
+                  break;
+              case 'ArrowDown':
+                  moveBall(maze, ball, 0, 1, ctx, cellSize);
+                  break;
+              case 'ArrowLeft':
+                  moveBall(maze, ball, -1, 0, ctx, cellSize);
+                  break;
+              case 'ArrowRight':
+                  moveBall(maze, ball, 1, 0, ctx, cellSize);
+                  break;
+          }
+      });
 
       document.getElementById("startGame").onclick = () => {
         socket.emit("startGame", roomId);
@@ -77,6 +104,7 @@
         ).innerText = `Current Lobby -> ${data.Users.map((user) => {
           return user.id;
         }).join(", ")}`;
+        id = data.id;
       });
 
       socket.on("gameReady", () => {
@@ -102,7 +130,17 @@
         document.getElementById("startGame").style.display = "none";
         document.getElementById("pauseButton").style.display = "inline";
         document.getElementById("timer").style.display = "inline";
+
+        // from list of users, find the user with the same id as the current user
+        const user = data.Users.find((user) => user.id === id);
         console.log(data);
+        if (user) {
+          maze = data.maze;
+          ballcol = user.color;
+          ball = user.position;
+          drawMaze(data.maze, ctx, cellSize);
+          drawBall(ball, ctx, cellSize);
+        }
       });
 
       socket.on('updatePositions', (data) => {
@@ -203,6 +241,38 @@
             resumeTimer();
           }
         });
+
+        function drawMaze(maze, ctx, cellSize) {
+            for (let y = 0; y < maze.length; y++) {
+                for (let x = 0; x < maze[y].length; x++) {
+                    ctx.fillStyle = maze[y][x] === 1 ? 'black' : 'white';
+                    ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+                }
+            }
+        }
+
+        function drawBall(ball, ctx, cellSize) {
+            ctx.fillStyle = ballcol;
+            ctx.beginPath();
+            ctx.arc(ball.x * cellSize + cellSize / 2, ball.y * cellSize + cellSize / 2, cellSize / 2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function clearBall(ball, ctx, cellSize) {
+            ctx.fillStyle = 'white';
+            ctx.fillRect(ball.x * cellSize, ball.y * cellSize, cellSize, cellSize);
+        }
+
+        function moveBall(maze, ball, dx, dy, ctx, cellSize) {
+            const newX = ball.x + dx;
+            const newY = ball.y + dy;
+            if (newX >= 0 && newX < maze[0].length && newY >= 0 && newY < maze.length && maze[newY][newX] === 0) {
+                clearBall(ball, ctx, cellSize);
+                ball.x = newX;
+                ball.y = newY;
+                drawBall(ball, ctx, cellSize);
+            }
+        }
     </script>
   </body>
 </html>

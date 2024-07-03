@@ -34,10 +34,15 @@ div {
 
 /* Canvas and Modal styling */
 
+#canvas-container{
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+}
+
 canvas {
   border: 2px solid #000;
   background-color: #fff;
-  width: 45%;
   border: 10px solid #ffcc00;
   margin: 10px;
 }
