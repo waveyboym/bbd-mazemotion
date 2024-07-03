@@ -4,7 +4,7 @@
     <title>Maze Motion | Lobby </title>
     <link rel="stylesheet" href="../style/style.css" />
     <script src="script.js"></script>
-    <script src="gyro.js"></script>
+    <!-- <script src="gyro.js"></script> -->
   </head>
   <body>
     <header>
@@ -83,11 +83,11 @@
           z.innerText = "Z: " + Math.round(z_val);
           
           // scale y_val and z_val to be between -1 and 1 for [-90, 90]
-          const y_scaled = y_val / 90;
-          const z_scaled = z_val / 90;
+          const y_scaled = Math.max(-1, Math.min(y_val / 90)); // front and back tilt
+          const z_scaled = Math.max(-1, Math.min(z_val / 90)); // left and right tilt
           x.innerText = "y_scaled: " + y_scaled + " z_scaled: " + z_scaled;
 
-          moveBall(maze, ball, z_scaled, y_scaled, ctx, cellSize);
+          moveBall(maze, ball, z_scaled * 2, y_scaled * 2, ctx, cellSize);
       }
 
       window.addEventListener("load", function () {
@@ -359,6 +359,7 @@
                 drawBall(ball, ctx, cellSize);
                 //send socket updates
                 socket.emit('updatePosition', {roomId, position: ball});
+                requestAnimationFrame(moveBall);
             }
         }
 
