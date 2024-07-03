@@ -99,12 +99,15 @@
       });
 
       socket.on("playersInRoom", (data) => {
+        console.log(data);
         document.getElementById(
           "players"
         ).innerText = `Current Lobby -> ${data.Users.map((user) => {
           return user.id;
         }).join(", ")}`;
-        id = data.id;
+        if(id === '') {
+          id = data.id;
+        }
       });
 
       socket.on("gameReady", () => {
