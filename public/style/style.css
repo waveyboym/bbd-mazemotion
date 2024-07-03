@@ -33,7 +33,14 @@ div {
 }
 
 /* Canvas and Modal styling */
-
+#ball {
+  position: absolute;
+  width: 9vmin;
+  height: 9vmin;
+  background-color: red;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
 #canvas-container{
   width: 100vw;
   display: flex;
