@@ -35,6 +35,7 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("message", message);
   });
 
+<<<<<<< HEAD
   socket.on("createRoom", () => {
     let ExistingRoom = true;
     while (ExistingRoom) {
@@ -48,6 +49,21 @@ io.on("connection", (socket) => {
       }
     }
   });
+=======
+    socket.on('createRoom', () => {
+        let ExistingRoom = true;
+        while(ExistingRoom){
+            const roomId = (Math.random() + 1).toString(36).substring(2);
+            if(!rooms[roomId]){
+                rooms[roomId] = { maze: [], Users: [], colors: ['blue', 'orange', 'green', 'red', 'purple', 'yellow', 'pink', 'brown', 'cyan', 'magenta', 'lime', 'teal', 'indigo', 'violet', 'gray']};
+                socket.join(roomId);
+                socket.emit('roomCreated', { roomId });
+                console.log(`Room created with ID: ${roomId}`);
+                ExistingRoom = false;
+            }
+        }
+    });
+>>>>>>> acde388b15c2acceee9048e74c95665d4b225a38
 
   socket.on("joinRoom", (roomId) => {
     if (!roomId) {
@@ -56,6 +72,7 @@ io.on("connection", (socket) => {
       return;
     }
 
+<<<<<<< HEAD
     if (rooms[roomId] && rooms[roomId].Users.length < 4) {
       socket.join(roomId);
       rooms[roomId].Users.push({
@@ -76,6 +93,72 @@ io.on("connection", (socket) => {
           socket
             .to(viewer)
             .emit("playersInRoom", { Users: rooms[roomId].Users });
+=======
+        if (rooms[roomId] && rooms[roomId].Users.length < 4) {
+            socket.join(roomId);
+            rooms[roomId].Users.push({ id: socket.id, color: getRandomColor(roomId), position: { x: 0, y: 0 } });
+            socket.emit('roomJoined', { roomId });
+            console.log(`User joined room with ID: ${roomId}`);
+            io.to(roomId).emit('playersInRoom', { Users: rooms[roomId].Users, id: socket.id });
+            
+            if (viewers[roomId]) {
+                viewers[roomId].forEach(viewer => {
+                    socket.to(viewer).emit('playersInRoom', { Users: rooms[roomId].Users});
+                });
+            }
+
+            if (rooms[roomId].Users.length >= 2) {
+                io.to(roomId).emit('gameReady');
+            }
+            else {
+                io.to(roomId).emit('gameNotReady');
+            }
+        } else if (!rooms[roomId]) {
+            socket.emit('roomNotFound');
+            console.log(`Room not found: ${roomId}`);
+        } else {
+            socket.emit('roomFull');
+            console.log(`Room full: ${roomId}`);
+        }
+    });
+
+    socket.on('joinRoomAsViewer', (roomId) => {
+        if (!roomId) {
+            socket.emit('roomNotFound');
+            console.log('Room not found');
+            return;
+        }
+        
+        if (rooms[roomId]) {
+            socket.join(roomId);
+            if (!viewers[roomId]) {
+                viewers[roomId] = [];
+            }
+            viewers[roomId].push(socket.id);
+            console.log(`Viewer joined room with ID: ${roomId}`);
+            socket.emit('roomJoined', { roomId: roomId, team: 'spectator'});
+            socket.emit('playersInRoom', { Users: rooms[roomId].Users });
+        }
+        else {
+            socket.emit('roomNotFound');
+            console.log(`Room not found: ${roomId}`);
+        }
+    });
+
+    socket.on('startGame', (roomId) => {
+        // check if this socket exists in the room
+        if (!rooms[roomId].Users.find(user => user.id === socket.id)) {
+            console.log('User not found');
+            return;
+        }
+
+        // create maze
+        rooms[roomId].maze = generateMaze(21, 21);
+
+        // initialize positions of players on the maze
+        rooms[roomId].Users.forEach(user => {
+            user.position = getRandomSpot(rooms[roomId].maze);
+>>>>>>> acde388b15c2acceee9048e74c95665d4b225a38
         });
       }
 
@@ -127,11 +210,44 @@ io.on("connection", (socket) => {
       user.position = getRandomSpot(rooms[roomId].maze);
     });
 
+<<<<<<< HEAD
     // emit gameStarted event and send maze and player positions
     io.to(roomId).emit("gameStarted", {
       maze: rooms[roomId].maze,
       Users: rooms[roomId].Users,
       goal: rooms[roomId].goal,
+=======
+    // expected data = { roomId, position: { x, y } }
+    socket.on('updatePosition', (data) => {
+        // Find the user in the room and update their position
+        const user = rooms[data.roomId].Users.find(user => user.id === socket.id); // this may cause problems
+        if (!user) {
+            console.log('User not found');
+            return;
+        }
+        user.position = data.position; // if js updates the reference or a copy of the object
+
+        // if the user has reached the goal, emit the gameEnded event
+        if(rooms[data.roomId].maze[user.position.y][user.position.x] === 2){
+            io.to(data.roomId).emit('gameEnded', { id: socket.id });
+            if (viewers[data.roomId]) {
+                viewers[data.roomId].forEach(viewer => {
+                    socket.to(viewer).emit('gameEnded', { id: socket.id });
+                });
+            }
+        }
+        else{
+            // Broadcast the updated positions to all users in the room except the one that sent the message
+            socket.to(data.roomId).emit('updatePosition', {Users: rooms[roomId].Users});
+            // Broadcast the updated positions to all viewers in the room
+            if (viewers[data.roomId]) {
+                viewers[data.roomId].forEach(viewer => {
+                    socket.to(viewer).emit('updatePosition', {Users: rooms[roomId].Users});
+                });
+            }
+        }
+
+>>>>>>> acde388b15c2acceee9048e74c95665d4b225a38
     });
 
     // emit gameStarted event to viewers
@@ -201,6 +317,7 @@ server.listen(port, () => {
 module.exports = app;
 
 // get random css color like blue, orange etc as string
+<<<<<<< HEAD
 function getRandomColor() {
   const colors = [
     "blue",
@@ -222,6 +339,15 @@ function getRandomColor() {
     "white",
   ];
   return colors[Math.floor(Math.random() * colors.length)];
+=======
+function getRandomColor(roomId) {
+    // randomly select colour and pop it from array
+    let colors = rooms[roomId].colors;
+    let color = colors[Math.floor(Math.random() * colors.length)];
+    colors.splice(colors.indexOf(color), 1);
+    rooms[roomId].colors = colors;
+    return color;
+>>>>>>> acde388b15c2acceee9048e74c95665d4b225a38
 }
 
 // pick random x,y spot in array that is available (0)

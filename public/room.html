@@ -94,16 +94,24 @@
       });
 
       socket.on("roomFull", () => {
-        document.getElementById("status").innerText = `Room is full`;
+        const statusElement = document.getElementById("status");
+        statusElement.innerText = `Room is full`;
+        statusElement.style.color = "red";
+        document.getElementById("startGame").style.display = "none";
+        document.getElementById("pauseButton").style.display = "none";
+        document.getElementById("timer").style.display = "none";
       });
 
       socket.on("playersInRoom", (data) => {
+        console.log(data);
         document.getElementById(
           "players"
         ).innerText = `Current Lobby -> ${data.Users.map((user) => {
           return user.id;
         }).join(", ")}`;
-        id = data.id;
+        if(id === '') {
+          id = data.id;
+        }
       });
 
       socket.on("gameReady", () => {
@@ -260,12 +268,22 @@
           }
         });
 
+<<<<<<< HEAD
       function drawMaze(maze, ctx, cellSize) {
         for (let y = 0; y < maze.length; y++) {
           for (let x = 0; x < maze[y].length; x++) {
             ctx.fillStyle = maze[y][x] === 1 ? "black" : "white";
             ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
           }
+=======
+        function drawMaze(maze, ctx, cellSize) {
+            for (let y = 0; y < maze.length; y++) {
+                for (let x = 0; x < maze[y].length; x++) {
+                    ctx.fillStyle = maze[y][x] === 2 ? 'green': maze[y][x] === 1 ? 'black' : 'white';
+                    ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+                }
+            }
+>>>>>>> acde388b15c2acceee9048e74c95665d4b225a38
         }
       }
 
