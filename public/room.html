@@ -17,6 +17,8 @@
     <br>
     <div id="players"></div>
     <br>
+    <div id="x"></div>
+    <div id="y"></div>
     <div id="controls">
       <button id="startGame">Start Game</button>
     </div>
@@ -334,7 +336,12 @@
           const dy = ballVelY > 0 ? 1 : ballVelY < 0 ? -1 : 0;
 
           moveBall(maze, ball, dx, dy, ctx, cellSize);
+          document.getElementById('x').innerText = dx;
+          document.getElementById('y').innerText = dy;
         }
+
+        window.addEventListener('deviceorientation', handleOrientation);
+
     </script>
   </body>
 </html>
