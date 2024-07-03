@@ -110,18 +110,7 @@ io.on("connection", (socket) => {
 
     socket.on('startGame', (roomId) => {
         // create maze
-        rooms[roomId].maze = [
-            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-            [1, 0, 1, 0, 1, 0, 1, 1, 0, 1],
-            [1, 0, 1, 0, 0, 0, 0, 1, 0, 1],
-            [1, 0, 1, 1, 1, 1, 0, 1, 0, 1],
-            [1, 0, 0, 0, 0, 1, 0, 1, 0, 1],
-            [1, 1, 1, 1, 0, 1, 0, 1, 0, 1],
-            [1, 0, 0, 1, 0, 0, 0, 0, 0, 1],
-            [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-        ];
+        rooms[roomId].maze = generateMaze(21, 21);
 
         // initialize positions of players on the maze
         rooms[roomId].Users.forEach(user => {
@@ -186,3 +175,102 @@ server.listen(port, () => {
 });
 
 module.exports = app;
+
+
+
+
+
+
+
+
+
+
+
+
+
+// maze generation
+
+class DisjointSet {
+    constructor(size) {
+        this.parent = Array.from({ length: size }, (_, i) => i);
+        this.rank = Array(size).fill(0);
+    }
+
+    find(x) {
+        if (this.parent[x] !== x) {
+            this.parent[x] = this.find(this.parent[x]);
+        }
+        return this.parent[x];
+    }
+
+    union(x, y) {
+        const rootX = this.find(x);
+        const rootY = this.find(y);
+        if (rootX !== rootY) {
+            if (this.rank[rootX] > this.rank[rootY]) {
+                this.parent[rootY] = rootX;
+            } else if (this.rank[rootX] < this.rank[rootY]) {
+                this.parent[rootX] = rootY;
+            } else {
+                this.parent[rootY] = rootX;
+                this.rank[rootX]++;
+            }
+        }
+    }
+}
+
+function generateMaze(width, height) {
+    // Initialize the maze with walls
+    let maze = Array.from({ length: height }, () => Array(width).fill(1));
+
+    // Define the cells and edges
+    let cells = [];
+    let edges = [];
+
+    // Populate the cells and edges
+    for (let y = 1; y < height - 1; y += 2) {
+        for (let x = 1; x < width - 1; x += 2) {
+            cells.push([x, y]);
+            if (x + 2 < width - 1) edges.push([[x, y], [x + 2, y]]);
+            if (y + 2 < height - 1) edges.push([[x, y], [x, y + 2]]);
+        }
+    }
+
+    // Shuffle the edges
+    for (let i = edges.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [edges[i], edges[j]] = [edges[j], edges[i]];
+    }
+
+    // Initialize the disjoint set
+    let ds = new DisjointSet(cells.length);
+
+    // Create a map from cell coordinates to index
+    let cellIndexMap = new Map();
+    cells.forEach(([x, y], i) => {
+        cellIndexMap.set(`${x},${y}`, i);
+    });
+
+    // Process each edge
+    for (let [[x1, y1], [x2, y2]] of edges) {
+        let index1 = cellIndexMap.get(`${x1},${y1}`);
+        let index2 = cellIndexMap.get(`${x2},${y2}`);
+
+        if (ds.find(index1) !== ds.find(index2)) {
+            ds.union(index1, index2);
+            maze[y1][x1] = 0;
+            maze[y2][x2] = 0;
+            maze[(y1 + y2) / 2][(x1 + x2) / 2] = 0;
+        }
+    }
+
+    // Add borders
+    for (let i = 0; i < width; i++) {
+        maze[0][i] = maze[height - 1][i] = 1;
+    }
+    for (let i = 0; i < height; i++) {
+        maze[i][0] = maze[i][width - 1] = 1;
+    }
+
+    return maze;
+}
