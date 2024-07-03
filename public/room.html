@@ -348,6 +348,7 @@
         }
 
         function moveBall(maze, ball, dx, dy, ctx, cellSize) {
+          alert(isPaused+"----");
             if(isPaused) return;
             if(maze[ball.y][ball.x] === 2 || gameEnd) {return;}
             const newX = ball.x + dx;
