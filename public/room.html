@@ -319,6 +319,7 @@
         }
 
         window.onload = function() {
+          console.log("loaded")
             if (typeof DeviceMotionEvent.requestPermission === 'function') {
                 DeviceMotionEvent.requestPermission()
                 .then((state) => {
@@ -339,6 +340,7 @@
         let ballVelY = 0;
 
         function handleOrientation(event) {
+          console.log("handling orientation")
           const y_val = event.beta; // Range [-180, 180]
           const z_val = event.gamma; // Range [-90, 90]
 
@@ -354,6 +356,7 @@
           moveBall(maze, ball, dx, dy, ctx, cellSize);
           document.getElementById('x').innerText = dx;
           document.getElementById('y').innerText = dy;
+          console.log(dx, dy)
         }
 
     </script>
