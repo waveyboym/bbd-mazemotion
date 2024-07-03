@@ -108,6 +108,12 @@ io.on("connection", (socket) => {
     });
 
     socket.on('startGame', (roomId) => {
+        // check if this socket exists in the room
+        if (!rooms[roomId].Users.find(user => user.id === socket.id)) {
+            console.log('User not found');
+            return;
+        }
+
         // create maze
         rooms[roomId].maze = generateMaze(21, 21);
 
