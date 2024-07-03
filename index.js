@@ -40,7 +40,7 @@ io.on("connection", (socket) => {
         while(ExistingRoom){
             const roomId = (Math.random() + 1).toString(36).substring(2);
             if(!rooms[roomId]){
-                rooms[roomId] = { maze: [], Users: []};
+                rooms[roomId] = { maze: [], Users: [], colors: ['blue', 'orange', 'green', 'red', 'purple', 'yellow', 'pink', 'brown', 'cyan', 'magenta', 'lime', 'teal', 'indigo', 'violet', 'gray', 'black', 'white']};
                 socket.join(roomId);
                 socket.emit('roomCreated', { roomId });
                 console.log(`Room created with ID: ${roomId}`);
@@ -58,7 +58,7 @@ io.on("connection", (socket) => {
 
         if (rooms[roomId] && rooms[roomId].Users.length < 4) {
             socket.join(roomId);
-            rooms[roomId].Users.push({ id: socket.id, color: getRandomColor(), position: { x: 0, y: 0 } });
+            rooms[roomId].Users.push({ id: socket.id, color: getRandomColor(roomId), position: { x: 0, y: 0 } });
             socket.emit('roomJoined', { roomId });
             console.log(`User joined room with ID: ${roomId}`);
 
@@ -187,9 +187,13 @@ module.exports = app;
 
 
 // get random css color like blue, orange etc as string
-function getRandomColor() {
-    const colors = ['blue', 'orange', 'green', 'red', 'purple', 'yellow', 'pink', 'brown', 'cyan', 'magenta', 'lime', 'teal', 'indigo', 'violet', 'gray', 'black', 'white'];
-    return colors[Math.floor(Math.random() * colors.length)];
+function getRandomColor(roomId) {
+    // randomly select colour and pop it from array
+    let colors = rooms[roomId].colors;
+    let color = colors[Math.floor(Math.random() * colors.length)];
+    colors.splice(colors.indexOf(color), 1);
+    rooms[roomId].colors = colors;
+    return color;
 }
 
 // pick random x,y spot in array that is available (0)
