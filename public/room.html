@@ -105,6 +105,11 @@
         console.log(data);
       });
 
+      socket.on('updatePositions', (data) => {
+            // {Users: [{id: 'player1', position: { x: 0, y: 0 }}, {id: 'player2', position: { x: 0, y: 0 }}]}
+            console.log(data);
+      });
+
       document.addEventListener("DOMContentLoaded", function () {
         const modal = document.getElementById("startGameModal");
         const enterButton = document.getElementById("enterButton");

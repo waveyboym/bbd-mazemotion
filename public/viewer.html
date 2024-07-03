@@ -59,6 +59,15 @@
             console.log(data);
         });
 
+        socket.on('gameEnded', () => {
+            document.getElementById('status').innerText = `Game ended!`;
+        });
+
+        socket.on('updatePositions', (data) => {
+            // {Users: [{id: 'player1', position: { x: 0, y: 0 }}, {id: 'player2', position: { x: 0, y: 0 }}]}
+            console.log(data);
+        });
+
         document.getElementById('back').addEventListener('click', function() {
             window.location.href = '/'; 
         });

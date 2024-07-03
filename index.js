@@ -150,11 +150,11 @@ io.on("connection", (socket) => {
         user.position = data.position; // if js updates the reference or a copy of the object
 
         // Broadcast the updated positions to all users in the room except the one that sent the message
-        socket.to(data.roomId).emit('updatePosition', data);
+        socket.to(data.roomId).emit('updatePosition', {Users: rooms[roomId].Users});
         // Broadcast the updated positions to all viewers in the room
         if (viewers[data.roomId]) {
             viewers[data.roomId].forEach(viewer => {
-                socket.to(viewer).emit('updatePosition', data);
+                socket.to(viewer).emit('updatePosition', {Users: rooms[roomId].Users});
             });
         }
     });
