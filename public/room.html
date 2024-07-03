@@ -77,12 +77,17 @@
           var x = document.getElementById("gyroX");   
           var y = document.getElementById("gyroY");
           var z = document.getElementById("gyroZ");
-          const x_val = event.alpha;
           const y_val = event.beta;
           const z_val = event.gamma;
           x.innerText = "X: " + Math.round(x_val);
           y.innerText = "Y: " + Math.round(y_val);
           z.innerText = "Z: " + Math.round(z_val);
+          
+          // scale y_val and z_val to be between -1 and 1 for [-90, 90]
+          const y_scaled = y_val / 90;
+          const z_scaled = z_val / 90;
+
+          moveBall(maze, ball, z_scaled, y_scaled, ctx, cellSize);
       }
 
       window.addEventListener("load", function () {
