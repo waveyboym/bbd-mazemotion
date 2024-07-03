@@ -40,7 +40,7 @@ io.on("connection", (socket) => {
         while(ExistingRoom){
             const roomId = (Math.random() + 1).toString(36).substring(2);
             if(!rooms[roomId]){
-                rooms[roomId] = { maze: [], Users: [], colors: ['blue', 'orange', 'green', 'red', 'purple', 'yellow', 'pink', 'brown', 'cyan', 'magenta', 'lime', 'teal', 'indigo', 'violet', 'gray']};
+                rooms[roomId] = { maze: [], Users: [], colors: ['blue', 'orange', 'green', 'red', 'purple', 'yellow', 'brown', 'cyan', 'magenta', 'lime', 'teal', 'indigo', 'violet', 'gray']};
                 socket.join(roomId);
                 socket.emit('roomCreated', { roomId });
                 console.log(`Room created with ID: ${roomId}`);
@@ -136,12 +136,23 @@ io.on("connection", (socket) => {
     // expected data = { roomId, position: { x, y } }
     socket.on('updatePosition', (data) => {
         // Find the user in the room and update their position
+        //clone the old array
+        const oldarray = rooms[data.roomId].Users.map((item) => ({...item}));
+
         const user = rooms[data.roomId].Users.find(user => user.id === socket.id); // this may cause problems
         if (!user) {
             console.log('User not found');
             return;
         }
         user.position = data.position; // if js updates the reference or a copy of the object
+
+        //update the users array in the room
+        rooms[data.roomId].Users = oldarray.map((item) => {
+            if (item.id === user.id) {
+                return user;
+            }
+            return item;
+        });
 
         // if the user has reached the goal, emit the gameEnded event
         if(rooms[data.roomId].maze[user.position.y][user.position.x] === 2){
@@ -154,11 +165,11 @@ io.on("connection", (socket) => {
         }
         else{
             // Broadcast the updated positions to all users in the room except the one that sent the message
-            socket.to(data.roomId).emit('updatePosition', {Users: rooms[roomId].Users});
+            socket.to(data.roomId).emit('updatePositions', {Users: rooms[data.roomId].Users, Old: oldarray});
             // Broadcast the updated positions to all viewers in the room
             if (viewers[data.roomId]) {
                 viewers[data.roomId].forEach(viewer => {
-                    socket.to(viewer).emit('updatePosition', {Users: rooms[roomId].Users});
+                    socket.to(viewer).emit('updatePositions', {Users: rooms[data.roomId].Users, Old: oldarray});
                 });
             }
         }

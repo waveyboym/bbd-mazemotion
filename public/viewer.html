@@ -9,16 +9,29 @@
 <body>
     <h1>SPECTATE MODE</h1>
     <div id="roomId"></div>
+    <br>
+    <div id="activity"></div>
+    <br>
     <div id="status"></div>
-    <ul id="players"></ul> <!-- Change to list for dynamic updates -->
+    <br>
+    <div id="players"></div>
+    <br>
     <button id="fullscreenBtn">Toggle Fullscreen</button>
-    <canvas id="game"></canvas>  
+    <div id="canvas-container">
+        <canvas id="gameCanvas"></canvas>
+    </div>
     <button id="back">&lt;-</button>
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
         const roomId = window.location.pathname.split('/').pop();
         document.getElementById('roomId').innerText = `Lobby ID: ${roomId}`;
+
+        let maze = [];
+        let id = '';
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const cellSize = 7;
 
         socket.emit('joinRoomAsViewer', roomId);
 
@@ -57,8 +70,16 @@
         });
 
         socket.on('gameStarted', (data) => {
-            document.getElementById('status').innerText = `Game started!`;
-            console.log(data);
+            document.getElementById("status").innerText = `Game started!`;
+
+            drawMaze(data.maze, ctx, cellSize);
+
+            data.Users.map((user) => {
+            ctx.fillStyle = user.color;
+            ctx.beginPath();
+            ctx.arc(user.position.x * cellSize + cellSize / 2, user.position.y * cellSize + cellSize / 2, cellSize / 2, 0, Math.PI * 2);
+            ctx.fill();
+          });
         });
 
         socket.on('gameEnded', () => {
@@ -67,7 +88,9 @@
 
         socket.on('updatePositions', (data) => {
             // {Users: [{id: 'player1', position: { x: 0, y: 0 }}, {id: 'player2', position: { x: 0, y: 0 }}]}
-            console.log(data);
+            for(let i = 0; i < data.Users.length; i++) {
+                drawOpponentsBall(data.Users[i].position, data.Old[i].position, ctx, cellSize, data.Users[i].color);
+            }
         });
 
         document.getElementById('back').addEventListener('click', function() {
@@ -91,6 +114,25 @@
             });
             }
         });
+
+        function drawMaze(maze, ctx, cellSize) {
+            for (let y = 0; y < maze.length; y++) {
+                for (let x = 0; x < maze[y].length; x++) {
+                    ctx.fillStyle = maze[y][x] === 2 ? 'green': maze[y][x] === 1 ? 'black' : 'white';
+                    ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+                }
+            }
+        }
+
+        function drawOpponentsBall(ball, old, ctx, cellSize, color) {
+            ctx.fillStyle = 'white';
+            ctx.fillRect(old.x * cellSize, old.y * cellSize, cellSize, cellSize);
+            
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(ball.x * cellSize + cellSize / 2, ball.y * cellSize + cellSize / 2, cellSize / 2, 0, Math.PI * 2);
+            ctx.fill();
+        }
     </script>
 </body>
 </html>

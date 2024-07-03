@@ -141,19 +141,30 @@
 
         // from list of users, find the user with the same id as the current user
         const user = data.Users.find((user) => user.id === id);
-        console.log(data);
         if (user) {
           maze = data.maze;
           ballcol = user.color;
           ball = user.position;
           drawMaze(data.maze, ctx, cellSize);
-          drawBall(ball, ctx, cellSize);
+          drawBall(user.position, ctx, cellSize);
+          data.Users.map((user) => {
+            if (user.id !== id) {
+              ctx.fillStyle = user.color;
+              ctx.beginPath();
+              ctx.arc(user.position.x * cellSize + cellSize / 2, user.position.y * cellSize + cellSize / 2, cellSize / 2, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          });
         }
       });
 
       socket.on('updatePositions', (data) => {
             // {Users: [{id: 'player1', position: { x: 0, y: 0 }}, {id: 'player2', position: { x: 0, y: 0 }}]}
-            console.log(data);
+            for(let i = 0; i < data.Users.length; i++) {
+              if (data.Users[i].id !== id) {
+                drawOpponentsBall(data.Users[i].position, data.Old[i].position, ctx, cellSize, data.Users[i].color);
+              }
+            }
       });
 
       document.addEventListener("DOMContentLoaded", function () {
@@ -266,6 +277,16 @@
             ctx.fill();
         }
 
+        function drawOpponentsBall(ball, old, ctx, cellSize, color) {
+          ctx.fillStyle = 'white';
+          ctx.fillRect(old.x * cellSize, old.y * cellSize, cellSize, cellSize);
+          
+          ctx.fillStyle = color;
+          ctx.beginPath();
+          ctx.arc(ball.x * cellSize + cellSize / 2, ball.y * cellSize + cellSize / 2, cellSize / 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
         function clearBall(ball, ctx, cellSize) {
             ctx.fillStyle = 'white';
             ctx.fillRect(ball.x * cellSize, ball.y * cellSize, cellSize, cellSize);
@@ -274,11 +295,13 @@
         function moveBall(maze, ball, dx, dy, ctx, cellSize) {
             const newX = ball.x + dx;
             const newY = ball.y + dy;
-            if (newX >= 0 && newX < maze[0].length && newY >= 0 && newY < maze.length && maze[newY][newX] === 0) {
+            if (newX >= 0 && newX < maze[0].length && newY >= 0 && newY < maze.length && (maze[newY][newX] === 0 || maze[newY][newX] === 2)) {
                 clearBall(ball, ctx, cellSize);
                 ball.x = newX;
                 ball.y = newY;
                 drawBall(ball, ctx, cellSize);
+                //send socket updates
+                socket.emit('updatePosition', {roomId, position: ball});
             }
         }
     </script>
