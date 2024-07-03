@@ -74,6 +74,9 @@
       });
 
       function handleOrientation(event) {
+          var x = document.getElementById("gyroX");   
+          var y = document.getElementById("gyroY");
+          var z = document.getElementById("gyroZ");
           const x_val = event.alpha;
           const y_val = event.beta;
           const z_val = event.gamma;
@@ -83,10 +86,6 @@
       }
 
       window.addEventListener("load", function () {
-          var x = document.getElementById("gyroX");   
-          var y = document.getElementById("gyroY");
-          var z = document.getElementById("gyroZ");
-
           window.addEventListener('deviceorientation', handleOrientation);
       });
 
