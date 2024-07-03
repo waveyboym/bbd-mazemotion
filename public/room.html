@@ -315,21 +315,25 @@
                 socket.emit('updatePosition', {roomId, position: ball});
             }
         }
-        window.addEventListener('deviceorientation', handleOrientation);
+
+        let maxSpeed = 1; // Define a reasonable max speed for the ball movement.
+        let ballVelX = 0;
+        let ballVelY = 0;
 
         function handleOrientation(event) {
-            const y_val = event.beta / 180; 
-            const z_val = event.gamma / 180; 
+          const y_val = event.beta; // Range [-180, 180]
+          const z_val = event.gamma; // Range [-90, 90]
 
-            canvas.style.transform = `rotateY(${z_val*90}deg) rotateX(${y_val *-90}deg)`;
+          // Assuming the device is held upright, beta represents tilt front/back, and gamma represents tilt left/right.
+          // Adjust the divisor to control sensitivity.
+          ballVelY = Math.max(Math.min(y_val / 45, maxSpeed), -maxSpeed); // Adjust divisor for sensitivity
+          ballVelX = Math.max(Math.min(z_val / 45, maxSpeed), -maxSpeed); // Adjust divisor for sensitivity
 
-            ballVelY = Math.max(Math.min(y_val / 90 * maxSpeed, maxSpeed), -maxSpeed);
-            ballVelX = Math.max(Math.min(z_val / 90 * maxSpeed, maxSpeed), -maxSpeed);
+          // Convert velocity to discrete steps for the maze.
+          const dx = ballVelX > 0 ? 1 : ballVelX < 0 ? -1 : 0;
+          const dy = ballVelY > 0 ? 1 : ballVelY < 0 ? -1 : 0;
 
-            console.log("Ball Vel Y" + ballVelY);
-            console.log("Ball Vel X" + ballVelX);
-
-            moveBall(maze, ball, ballVelX, ballVelY, ctx, cellSize);
+          moveBall(maze, ball, dx, dy, ctx, cellSize);
         }
     </script>
   </body>
