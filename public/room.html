@@ -79,13 +79,13 @@
           var z = document.getElementById("gyroZ");
           const y_val = event.beta;
           const z_val = event.gamma;
-          x.innerText = "X: " + Math.round(x_val);
           y.innerText = "Y: " + Math.round(y_val);
           z.innerText = "Z: " + Math.round(z_val);
           
           // scale y_val and z_val to be between -1 and 1 for [-90, 90]
           const y_scaled = y_val / 90;
           const z_scaled = z_val / 90;
+          x.innerText = "y_scaled: " + y_scaled + " z_scaled: " + z_scaled;
 
           moveBall(maze, ball, z_scaled, y_scaled, ctx, cellSize);
       }
