@@ -318,6 +318,22 @@
             }
         }
 
+        window.onload = function() {
+            if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                DeviceMotionEvent.requestPermission()
+                .then((state) => {
+                    if (state === 'granted') {
+                    window.addEventListener('devicemotion', handleOrientation);
+                    } else {
+                    console.error('Request to access the orientation was rejected');
+                    }
+                })
+                .catch(console.error);
+            } else {
+                window.addEventListener('devicemotion', handleOrientation);
+            }
+        }
+
         let maxSpeed = 1; // Define a reasonable max speed for the ball movement.
         let ballVelX = 0;
         let ballVelY = 0;
@@ -339,8 +355,6 @@
           document.getElementById('x').innerText = dx;
           document.getElementById('y').innerText = dy;
         }
-
-        window.addEventListener('deviceorientation', handleOrientation);
 
     </script>
   </body>
