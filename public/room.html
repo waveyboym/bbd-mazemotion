@@ -25,6 +25,7 @@
       <button id="startGame">Start Game</button>
     </div>
     <button id="fullscreenBtn">Toggle Fullscreen</button>
+    <button id="permissions">Request Permisions</button>
     <button id="pauseButton">Pause</button>
     <span id="timer">Time: 00:00</span>
     <div id="game">
@@ -73,6 +74,49 @@
           }
       });
 
+      function requestPerm() {
+          console.log("loaded")
+            if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                DeviceMotionEvent.requestPermission()
+                .then((state) => {
+                    if (state === 'granted') {
+                    window.addEventListener('devicemotion', handleOrientation);
+                    } else {
+                    console.error('Request to access the orientation was rejected');
+                    }
+                })
+                .catch(console.error);
+            } else {
+                window.addEventListener('devicemotion', handleOrientation);
+            }
+        }
+
+        let maxSpeed = 1; // Define a reasonable max speed for the ball movement.
+        let ballVelX = 0;
+        let ballVelY = 0;
+
+        function handleOrientation(event) {
+          console.log("handling orientation")
+          const y_val = event.beta; // Range [-180, 180]
+          const z_val = event.gamma; // Range [-90, 90]
+
+          console.log(y_val, z_val)
+
+          // Assuming the device is held upright, beta represents tilt front/back, and gamma represents tilt left/right.
+          // Adjust the divisor to control sensitivity.
+          ballVelY = Math.max(Math.min(y_val / 45, maxSpeed), -maxSpeed); // Adjust divisor for sensitivity
+          ballVelX = Math.max(Math.min(z_val / 45, maxSpeed), -maxSpeed); // Adjust divisor for sensitivity
+
+          // Convert velocity to discrete steps for the maze.
+          const dx = ballVelX > 0 ? 1 : ballVelX < 0 ? -1 : 0;
+          const dy = ballVelY > 0 ? 1 : ballVelY < 0 ? -1 : 0;
+
+          moveBall(maze, ball, dx, dy, ctx, cellSize);
+          document.getElementById('x').innerText = dx;
+          document.getElementById('y').innerText = dy;
+          console.log(dx, dy)
+        }
+
       document.getElementById("startGame").onclick = () => {
         socket.emit("startGame", roomId);
         startTimer();
@@ -80,6 +124,10 @@
 
       document.getElementById('back').addEventListener('click', function() {
         window.location.href = '/'; 
+      });
+
+      document.getElementById('permissions').addEventListener('click', function() {
+        requestPerm();
       });
 
       socket.emit("joinRoom", roomId);
@@ -319,30 +367,6 @@
                 socket.emit('updatePosition', {roomId, position: ball});
             }
         }
-
-        let maxSpeed = 1; // Define a reasonable max speed for the ball movement.
-        let ballVelX = 0;
-        let ballVelY = 0;
-
-        function handleOrientation(event) {
-          const y_val = event.beta; // Range [-180, 180]
-          const z_val = event.gamma; // Range [-90, 90]
-
-          // Assuming the device is held upright, beta represents tilt front/back, and gamma represents tilt left/right.
-          // Adjust the divisor to control sensitivity.
-          ballVelY = Math.max(Math.min(y_val / 45, maxSpeed), -maxSpeed); // Adjust divisor for sensitivity
-          ballVelX = Math.max(Math.min(z_val / 45, maxSpeed), -maxSpeed); // Adjust divisor for sensitivity
-
-          // Convert velocity to discrete steps for the maze.
-          const dx = ballVelX > 0 ? 1 : ballVelX < 0 ? -1 : 0;
-          const dy = ballVelY > 0 ? 1 : ballVelY < 0 ? -1 : 0;
-
-          moveBall(maze, ball, dx, dy, ctx, cellSize);
-          document.getElementById('x').innerText = dx;
-          document.getElementById('y').innerText = dy;
-        }
-
-        window.addEventListener('deviceorientation', handleOrientation);
 
     </script>
   </body>
