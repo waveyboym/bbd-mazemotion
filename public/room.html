@@ -50,6 +50,7 @@
       let ball = { x: 1, y: 1 };
       let ballcol = 'red';
       const cellSize = 7;
+      let gameEnd = false;
 
       window.addEventListener('keydown', event => {
           switch (event.key) {
@@ -165,6 +166,14 @@
                 drawOpponentsBall(data.Users[i].position, data.Old[i].position, ctx, cellSize, data.Users[i].color);
               }
             }
+      });
+
+      socket.on("gameEnded", (data) => {
+        document.getElementById("status").innerText = `Game ended! Winner: ${data.id}`;
+        document.getElementById("startGame").style.display = "none";
+        document.getElementById("pauseButton").style.display = "none";
+        document.getElementById("timer").style.display = "none";
+        gameEnd = true;
       });
 
       document.addEventListener("DOMContentLoaded", function () {
@@ -293,6 +302,8 @@
         }
 
         function moveBall(maze, ball, dx, dy, ctx, cellSize) {
+            if(isPaused) return;
+            if(maze[ball.y][ball.x] === 2 || gameEnd) {return;}
             const newX = ball.x + dx;
             const newY = ball.y + dy;
             if (newX >= 0 && newX < maze[0].length && newY >= 0 && newY < maze.length && (maze[newY][newX] === 0 || maze[newY][newX] === 2)) {

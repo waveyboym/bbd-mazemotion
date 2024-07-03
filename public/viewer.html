@@ -82,8 +82,8 @@
           });
         });
 
-        socket.on('gameEnded', () => {
-            document.getElementById('status').innerText = `Game ended!`;
+        socket.on('gameEnded', (data) => {
+            document.getElementById('status').innerText = `Game ended! Winner: ${data.id}`;
         });
 
         socket.on('updatePositions', (data) => {

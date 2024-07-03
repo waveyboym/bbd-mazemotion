@@ -40,7 +40,7 @@ io.on("connection", (socket) => {
         while(ExistingRoom){
             const roomId = (Math.random() + 1).toString(36).substring(2);
             if(!rooms[roomId]){
-                rooms[roomId] = { maze: [], Users: [], colors: ['blue', 'orange', 'green', 'red', 'purple', 'yellow', 'brown', 'cyan', 'magenta', 'lime', 'teal', 'indigo', 'violet', 'gray']};
+                rooms[roomId] = { maze: [], Users: [], colors: ['blue', 'orange', 'green', 'red', 'purple', 'yellow', 'brown', 'cyan', 'magenta', 'lime', 'teal', 'indigo', 'violet', 'gray'], gameOver: false};
                 socket.join(roomId);
                 socket.emit('roomCreated', { roomId });
                 console.log(`Room created with ID: ${roomId}`);
@@ -116,6 +116,8 @@ io.on("connection", (socket) => {
 
         // create maze
         rooms[roomId].maze = generateMaze(21, 21);
+        const goal = getRandomGoal(rooms[roomId].maze);
+        rooms[roomId].maze[goal.y][goal.x] = 2;
 
         // initialize positions of players on the maze
         rooms[roomId].Users.forEach(user => {
@@ -135,6 +137,7 @@ io.on("connection", (socket) => {
 
     // expected data = { roomId, position: { x, y } }
     socket.on('updatePosition', (data) => {
+        if(rooms[data.roomId].gameOver) return;
         // Find the user in the room and update their position
         //clone the old array
         const oldarray = rooms[data.roomId].Users.map((item) => ({...item}));
@@ -156,6 +159,16 @@ io.on("connection", (socket) => {
 
         // if the user has reached the goal, emit the gameEnded event
         if(rooms[data.roomId].maze[user.position.y][user.position.x] === 2){
+            // Broadcast the updated positions to all users in the room except the one that sent the message
+            socket.to(data.roomId).emit('updatePositions', {Users: rooms[data.roomId].Users, Old: oldarray});
+            // Broadcast the updated positions to all viewers in the room
+            if (viewers[data.roomId]) {
+                viewers[data.roomId].forEach(viewer => {
+                    socket.to(viewer).emit('updatePositions', {Users: rooms[data.roomId].Users, Old: oldarray});
+                });
+            }
+            
+            rooms[data.roomId].gameOver = true;
             io.to(data.roomId).emit('gameEnded', { id: socket.id });
             if (viewers[data.roomId]) {
                 viewers[data.roomId].forEach(viewer => {
@@ -232,6 +245,18 @@ function getRandomSpot(maze) {
         x = Math.floor(Math.random() * maze[0].length);
         y = Math.floor(Math.random() * maze.length);
     }
+    return { x, y };
+}
+
+// pick random x, y spot in array that is available (0) for the goal
+function getRandomGoal(maze) {
+    let x = Math.floor(Math.random() * maze[0].length);
+    let y = Math.floor(Math.random() * maze.length);
+    while (maze[y][x] !== 0) {
+        x = Math.floor(Math.random() * maze[0].length);
+        y = Math.floor(Math.random() * maze.length);
+    }
+    maze[y][x] = 2;
     return { x, y };
 }
 
