@@ -56,40 +56,65 @@
       let ballcol = 'red';
       const cellSize = 7;
       let gameEnd = false;
+      let maxSpeed = 0.25;
+const friction = 0.95;
+let ballVelX = 0;
+let ballVelY = 0;
 
-      window.addEventListener('keydown', event => {
-          switch (event.key) {
-              case 'ArrowUp':
-                  moveBall(maze, ball, 0, -1, ctx, cellSize);
-                  break;
-              case 'ArrowDown':
-                  moveBall(maze, ball, 0, 1, ctx, cellSize);
-                  break;
-              case 'ArrowLeft':
-                  moveBall(maze, ball, -1, 0, ctx, cellSize);
-                  break;
-              case 'ArrowRight':
-                  moveBall(maze, ball, 1, 0, ctx, cellSize);
-                  break;
-          }
-      });
+      // window.addEventListener('keydown', event => {
+      //     switch (event.key) {
+      //         case 'ArrowUp':
+      //             moveBall(maze, ball, 0, -1, ctx, cellSize);
+      //             break;
+      //         case 'ArrowDown':
+      //             moveBall(maze, ball, 0, 1, ctx, cellSize);
+      //             break;
+      //         case 'ArrowLeft':
+      //             moveBall(maze, ball, -1, 0, ctx, cellSize);
+      //             break;
+      //         case 'ArrowRight':
+      //             moveBall(maze, ball, 1, 0, ctx, cellSize);
+      //             break;
+      //     }
+      // });
+      let keysPressed = {};
+document.addEventListener('keydown', (event) => {
+keysPressed[event.key] = true;
+});
+document.addEventListener('keyup', (event) => {
+keysPressed[event.key] = false;
+});
 
       function handleOrientation(event) {
-          var x = document.getElementById("gyroX");   
-          var y = document.getElementById("gyroY");
-          var z = document.getElementById("gyroZ");
-          const y_val = event.beta / 180;
-          const z_val = event.gamma / 90;
-          y.innerText = "Y: " + Math.round(y_val);
-          z.innerText = "Z: " + Math.round(z_val);
-          
-          // scale y_val and z_val to be between -1 and 1 for [-90, 90]
-          // const y_scaled = Math.max(-1, Math.min(y_val / 90)); // front and back tilt
-          // const z_scaled = Math.max(-1, Math.min(z_val / 90)); // left and right tilt
-          x.innerText = "y_scaled: " + y_scaled + " z_scaled: " + z_scaled;
+          const y_val = event.beta;  // Tilt front-to-back
+          const z_val = event.gamma; // Tilt left-to-right
 
-          moveBall(maze, ball, z_scaled, y_scaled, ctx, cellSize);
+          canvas.style.transform = `rotateY(${event.gamma/2}deg) rotateX(${-event.beta/2}deg)`;
+
+          // Adjust ball velocity based on device orientation
+          ballVelY = Math.max(Math.min(y_val / 90 * maxSpeed, maxSpeed), -maxSpeed);
+          ballVelX = Math.max(Math.min(z_val / 90 * maxSpeed, maxSpeed), -maxSpeed);
       }
+
+      function gameLoop() {
+    if (keysPressed['ArrowUp']) {
+        ballVelY = Math.max(ballVelY - acceleration, -maxSpeed);
+      } else if (keysPressed['ArrowDown']) {
+        ballVelY = Math.min(ballVelY + acceleration, maxSpeed);
+      } else {
+        ballVelY *= friction; // Deceleration
+      }
+      if (keysPressed['ArrowLeft']) {
+        ballVelX = Math.max(ballVelX - acceleration, -maxSpeed);
+      } else if (keysPressed['ArrowRight']) {
+        ballVelX = Math.min(ballVelX + acceleration, maxSpeed);
+      } else {
+        ballVelX *= friction; // Deceleration
+    }
+    moveBall(maze, ball, ballVelX, ballVelY, ctx, cellSize);
+    requestAnimationFrame(gameLoop);
+}
+gameLoop();
 
       window.addEventListener("load", function () {
           window.addEventListener('deviceorientation', handleOrientation);
