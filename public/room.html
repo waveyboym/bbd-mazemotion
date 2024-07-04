@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
   <head>
@@ -306,24 +305,24 @@ gameLoop();
         timerInterval = setInterval(updateTimer, 1000);
       }
 
-      // function updateTimer() {
-      //   if (!isPaused) {
-      //     totalSeconds++;
-      //     const minutes = Math.floor(totalSeconds / 60);
-      //     const seconds = totalSeconds % 60;
-      //     document.getElementById("timer").innerHTML = `Time: ${
-      //       minutes < 10 ? "0" : ""
-      //     }${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-      //   }
-      // }
+      function updateTimer() {
+        if (!isPaused) {
+          totalSeconds++;
+          const minutes = Math.floor(totalSeconds / 60);
+          const seconds = totalSeconds % 60;
+          document.getElementById("timer").innerHTML = `Time: ${
+            minutes < 10 ? "0" : ""
+          }${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+        }
+      }
 
-      // function pauseTimer() {
-      //   isPaused = true;
-      // }
+      function pauseTimer() {
+        isPaused = true;
+      }
 
-      // function resumeTimer() {
-      //   isPaused = false;
-      // }
+      function resumeTimer() {
+        isPaused = false;
+      }
 
       document
         .getElementById("enterButton")
